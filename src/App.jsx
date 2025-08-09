@@ -1,8 +1,4 @@
-// Todo App — React single-file (final + Light/Dark toggle)
-// Features: pins, notes modal, confetti, animated gradient, progress ring,
-// priority filter (All vs section), mobile sidebar, 5-section limit, DnD sections,
-// rename/delete modals, right-click menus, sounds, localStorage, **Light/Dark mode**.
-// by Murtadha & GPT5
+
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Plus, FolderPlus, Edit2, Trash2, GripVertical, X, CalendarDays, Menu, Flag, Filter, Pin, StickyNote, Sun, Moon } from "lucide-react";
