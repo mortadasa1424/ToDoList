@@ -225,33 +225,9 @@ export default function TodoApp() {
   };
 
 
-
-  const Confetti = () => {
-    const canvasRef = useRef(null);
-    useEffect(() => {
-      const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d');
-      let w = canvas.width = window.innerWidth; let h = canvas.height = window.innerHeight;
-      const colors = ['#22d3ee','#34d399','#60a5fa','#f472b6','#f59e0b'];
-      const pieces = Array.from({length: 120}).map(()=> ({
-        x: Math.random()*w, y: -20 - Math.random()*40, r: 4 + Math.random()*4, c: colors[Math.floor(Math.random()*colors.length)], vy: 2+Math.random()*3, vx: -1+Math.random()*2, a: Math.random()*Math.PI
-      }));
-      let raf;
-      const tick = () => {
-        ctx.clearRect(0,0,w,h);
-        pieces.forEach(p=>{ p.x += p.vx; p.y += p.vy; p.a += 0.05; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore(); });
-        raf = requestAnimationFrame(tick);
-      };
-      tick();
-      const onResize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
-      window.addEventListener('resize', onResize);
-      return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); };
-    }, []);
-    return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-[70]" />;
-  };
-
   return (
     <div className={`min-h-screen ${T.root}`}>
-      {confetti && <Confetti />}
+     
       {/* Animated gradient background */}
       <style>{gradientCss}</style>
       <div className="fixed inset-0 -z-10 opacity-70" style={{
