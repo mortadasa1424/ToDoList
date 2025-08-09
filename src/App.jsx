@@ -228,17 +228,7 @@ export default function TodoApp() {
     );
   };
 
-  // ===== Confetti =====
-  const [confetti, setConfetti] = useState(false);
-  const lastProgressRef = useRef(0);
-  useEffect(() => {
-    if (progress === 100 && visibleTasks.length > 0 && lastProgressRef.current !== 100) {
-      setConfetti(true);
-      const t = setTimeout(() => setConfetti(false), 1600);
-      return () => clearTimeout(t);
-    }
-    lastProgressRef.current = progress;
-  }, [progress, visibleTasks.length]);
+
 
   const Confetti = () => {
     const canvasRef = useRef(null);
