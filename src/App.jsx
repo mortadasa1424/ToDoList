@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Plus, FolderPlus, Edit2, Trash2, GripVertical, X, CalendarDays, Menu, Flag, Filter, Pin, StickyNote, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -224,10 +222,26 @@ export default function TodoApp() {
     );
   };
 
+  // ===== Reset All =====
+  const resetAll = () => {
+    if (!confirm("Sure?")) return;
+    try {
+      localStorage.removeItem(CATS_KEY);
+      localStorage.removeItem(TASKS_KEY);
+      localStorage.removeItem(COLORS_KEY);
+  
+    } catch {}
+ 
+    setCategories(["general"]);
+    setCatColors({ general: PALETTE[2] });
+    setTasks([]);
+    setActive("all");
+    setPrioFilter("all");
+  
+  };
 
   return (
     <div className={`min-h-screen ${T.root}`}>
-     
       {/* Animated gradient background */}
       <style>{gradientCss}</style>
       <div className="fixed inset-0 -z-10 opacity-70" style={{
@@ -243,10 +257,19 @@ export default function TodoApp() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 p-4">
           <div className="flex items-center gap-3">
             <button className={`sm:hidden rounded-lg border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} p-2`} onClick={()=>setSidebarOpen(s=>!s)} title="Menu"><Menu className="h-5 w-5"/></button>
-            <h1 className="text-2xl font-semibold tracking-tight">To‑Do List</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">To-Do List</h1>
             <span className={`hidden text-sm sm:inline ${T.stat}`}>• {labelOf(active)}</span>
           </div>
           <div className="flex items-center gap-3">
+            {/* Reset button */}
+            <button
+              onClick={resetAll}
+              className={`rounded-lg border ${T.border} ${theme==='dark' ? 'bg-white/5 hover:bg-white/10 text-rose-300' : 'bg-white hover:bg-rose-50 text-rose-700'} px-2 py-1`}
+              title="Reset all"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+
             <button onClick={()=> setTheme(theme==='dark'? 'light':'dark')} className={`inline-flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-3 py-2`} title={theme==='dark'? 'Light mode':'Dark mode'}>
               {theme==='dark'? <Sun className="h-4 w-4"/> : <Moon className="h-4 w-4"/>}
               <span className="text-sm font-medium">{theme==='dark'? 'Light':'Dark'}</span>
@@ -355,9 +378,10 @@ export default function TodoApp() {
                     <div className="flex items-center gap-3 min-w-0">
                       <button onClick={() => toggleTask(task.id)} className={`h-5 w-5 shrink-0 rounded-md border ${theme==='dark'? (task.done ? 'border-emerald-400 bg-emerald-500/30':'border-white/20') : (task.done ? 'border-emerald-500 bg-emerald-100':'border-gray-300')}`} aria-label="toggle" />
                       {active === "all" && (<span className={`h-2.5 w-2.5 shrink-0 rounded-full ${colorOf(task.category)}`} title={labelOf(task.category)} />)}
-<span className={`text-sm sm:text-base break-words ${task.done ? (theme==='dark' ? 'text-white/40 line-through' : 'text-gray-400 line-through') : ''}`}>
-  {task.text}
-</span>                      {task.priority === 'urgent' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillUrgent}`}><Flag className="h-3 w-3"/> Urgent</span>)}
+                      <span className={`text-sm sm:text-base break-words ${task.done ? (theme==='dark' ? 'text-white/40 line-through' : 'text-gray-400 line-through') : ''}`}>
+                        {task.text}
+                      </span>
+                      {task.priority === 'urgent' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillUrgent}`}><Flag className="h-3 w-3"/> Urgent</span>)}
                       {task.priority === 'low' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs ${T.pillLow}`}>Low</span>)}
                       {task.pinned && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillPinned}`}><Pin className="h-3 w-3"/>Pinned</span>)}
                     </div>
@@ -389,7 +413,7 @@ export default function TodoApp() {
       {renameModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">Rename Section</h3><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
+            <div className="mb-3 flex items-center justify_between"><h3 className="text-lg font-semibold">Rename Section</h3><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
             <input autoFocus value={renameModal.value} onChange={(e) => setRenameModal((m) => ({ ...m, value: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); } }} placeholder="New name" className={`mb-3 w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
             <div className="flex justify-end gap-2"><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>Cancel</button><button onClick={() => { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">Save</button></div>
           </div>
@@ -411,7 +435,7 @@ export default function TodoApp() {
       {noteModal.open && (
         <div className={`fixed inset-0 z-[65] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">Task Notes</h3><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
+            <div className="mb-3 flex items_center justify_between"><h3 className="text-lg font-semibold">Task Notes</h3><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
             <textarea value={noteModal.value} onChange={(e)=> setNoteModal((m)=> ({...m, value: e.target.value}))} placeholder="Write more details about this task…" className={`mb-3 min-h-[120px] w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
             <div className="flex justify-end gap-2"><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>Cancel</button><button onClick={() => { setNote(noteModal.id, noteModal.value); setNoteModal({ open: false, id: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">Save</button></div>
           </div>
