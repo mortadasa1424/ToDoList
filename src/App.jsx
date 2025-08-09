@@ -393,8 +393,9 @@ export default function TodoApp() {
                     <div className="flex items-center gap-3 min-w-0">
                       <button onClick={() => toggleTask(task.id)} className={`h-5 w-5 shrink-0 rounded-md border ${theme==='dark'? (task.done ? 'border-emerald-400 bg-emerald-500/30':'border-white/20') : (task.done ? 'border-emerald-500 bg-emerald-100':'border-gray-300')}`} aria-label="toggle" />
                       {active === "all" && (<span className={`h-2.5 w-2.5 shrink-0 rounded-full ${colorOf(task.category)}`} title={labelOf(task.category)} />)}
-                      <span className={`truncate text-sm sm:text-base ${task.done ? (theme==='dark'? 'text-white/40 line-through' : 'text-gray-400 line-through') : ''}`}>{task.text}</span>
-                      {task.priority === 'urgent' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillUrgent}`}><Flag className="h-3 w-3"/> Urgent</span>)}
+<span className={`text-sm sm:text-base ${task.done ? (theme==='dark' ? 'text-white/40 line-through' : 'text-gray-400 line-through') : ''}`}>
+  {task.text}
+</span>                      {task.priority === 'urgent' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillUrgent}`}><Flag className="h-3 w-3"/> Urgent</span>)}
                       {task.priority === 'low' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs ${T.pillLow}`}>Low</span>)}
                       {task.pinned && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillPinned}`}><Pin className="h-3 w-3"/>Pinned</span>)}
                     </div>
