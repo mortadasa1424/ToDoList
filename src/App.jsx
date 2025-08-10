@@ -252,7 +252,7 @@ export default function TodoApp() {
 
   // ===== Reset All =====
   const resetAll = () => {
-    if (!confirm("هل تريد حذف كل البيانات؟ سيتم مسح الأقسام والمهام نهائيًا.")) return;
+    if (!confirm("Sure ")) return;
     try {
       localStorage.removeItem(CATS_KEY);
       localStorage.removeItem(TASKS_KEY);
