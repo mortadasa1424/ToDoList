@@ -347,6 +347,10 @@ export default function TodoApp() {
     setPrioFilter("all");
   };
 
+  // === NEW: corners based on language (fix add bar in RTL) ===
+  const inputCorner = isAR ? "rounded-r-xl" : "rounded-l-xl";
+  const btnCorner   = isAR ? "rounded-l-xl" : "rounded-r-xl";
+
   return (
     <div className={`min-h-screen ${T.root}`} dir={dir}>
       <style>{gradientCss}</style>
@@ -373,7 +377,6 @@ export default function TodoApp() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Reset */}
               <button
                 onClick={resetAll}
                 className={`rounded-lg border ${T.border} ${theme==='dark' ? 'bg-white/5 hover:bg-white/10 text-rose-300' : 'bg-white hover:bg-rose-50 text-rose-700'} p-2`}
@@ -381,7 +384,7 @@ export default function TodoApp() {
                 <Trash2 className="h-4 w-4" />
               </button>
 
-              {/* Theme toggle */}
+              {/* Theme */}
               <button
                 onClick={()=> setTheme(theme==='dark'? 'light':'dark')}
                 className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-2.5 py-1.5 sm:px-3 sm:py-2`}
@@ -390,7 +393,7 @@ export default function TodoApp() {
                 <span className="text-xs sm:text-sm font-medium">{theme==='dark'? t("light") : t("dark")}</span>
               </button>
 
-              {/* Language toggle */}
+              {/* Language */}
               <button
                 onClick={()=> setLang(l => l === "en" ? "ar" : "en")}
                 className={`inline-flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-3 py-2`}
@@ -430,7 +433,7 @@ export default function TodoApp() {
       </header>
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-3 sm:gap-4 p-3 sm:p-4 sm:grid-cols-[260px_1fr]">
-        {/* Mobile drawer backdrop */}
+        {/* Backdrop */}
         {sidebarOpen && (
           <button className="sm:hidden fixed inset-0 z-40 bg-black/40" onClick={()=>setSidebarOpen(false)} aria-label="Close sidebar" />
         )}
@@ -444,7 +447,7 @@ export default function TodoApp() {
             </button>
           </div>
 
-          {/* Inline New Section form */}
+          {/* New section form */}
           {newCatOpen && (
             <>
               <div className="mb-1 grid grid-cols-[1fr_auto] items-stretch gap-2">
@@ -456,7 +459,7 @@ export default function TodoApp() {
           )}
 
           <div className="flex flex-wrap gap-2 sm:block">
-            {/* ALL (virtual) */}
+            {/* All */}
             <div key="all" className={`group mb-2 flex items-center justify-between rounded-xl px-2 py-1.5 transition ${T.hoverRow} ${active === "all" ? (theme==='dark'? 'bg-white/10':'bg-gray-100') : ''}`} onClick={() => setActive("all")}>
               <span className="flex items-center gap-2">
                 <span className={`h-2.5 w-2.5 rounded-full ${theme==='dark'?'bg-white/40':'bg-gray-400'}`}></span>
@@ -478,7 +481,7 @@ export default function TodoApp() {
             </AnimatePresence>
           </div>
 
-          {/* Section context menu */}
+          {/* Context menu */}
           {secMenu.open && (
             <div ref={secMenuRef} className={`absolute z-50 min-w-[180px] overflow-hidden rounded-xl border ${T.border} ${T.menuBg} p-1 shadow-xl`} style={{ left: Math.min(secMenu.x - (document.body.getBoundingClientRect().left || 0), 260), top: Math.max(8, secMenu.y - 80) }}>
               <button onClick={() => { setRenameModal({ open: true, cat: secMenu.cat, value: labelOf(secMenu.cat) }); setSecMenu({ ...secMenu, open: false }); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-50'}`}><Edit2 className="h-4 w-4" /> {t("rename")}</button>
@@ -491,21 +494,26 @@ export default function TodoApp() {
 
         {/* Content */}
         <main className={`relative rounded-2xl border ${T.border} ${T.card} p-3 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
-          {/* Add */}
+          {/* Add (fixed corners for RTL/LTR) */}
           <div className="mb-3 sm:mb-4 flex w-full">
             <input
               ref={inputRef}
               type="text"
               placeholder={isAR ? "أضف مهمة…" : "Add a task…"}
-              className={`flex-1 rounded-l-xl border ${T.border} ${T.input} p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`}
+              className={`flex-1 ${inputCorner} border ${T.border} ${T.input} p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`}
               onKeyDown={(e) => { if (e.key === "Enter") { addTask(e.target.value); e.target.value = ""; } }}
             />
-            <button onClick={() => { const el = inputRef.current; if (!el) return; addTask(el.value); el.value = ""; el.focus(); }} className="group rounded-r-xl bg-gradient-to-br from-cyan-500 to-blue-500 px-4 sm:px-6 text-sm font-semibold text-white shadow-lg shadow-cyan-900/30 transition hover:from-cyan-400 hover:to-blue-400 active:translate-y-px">
-              <span className="inline-flex items-center gap-2"><Plus className="h-4 w-4 transition-transform group-active:-rotate-12" /> {t("add")}</span>
+            <button
+              onClick={() => { const el = inputRef.current; if (!el) return; addTask(el.value); el.value = ""; el.focus(); }}
+              className={`group ${btnCorner} bg-gradient-to-br from-cyan-500 to-blue-500 px-4 sm:px-6 text-sm font-semibold text-white shadow-lg shadow-cyan-900/30 transition hover:from-cyan-400 hover:to-blue-400 active:translate-y-px`}
+            >
+              <span className="inline-flex items-center gap-2">
+                <Plus className="h-4 w-4 transition-transform group-active:-rotate-12" /> {t("add")}
+              </span>
             </button>
           </div>
 
-          {/* Section stats / progress */}
+          {/* Stats / progress */}
           <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
             <div className={`text-sm ${T.stat}`}>{t("stats", doneCount, visibleTasks.length - doneCount, visibleTasks.length)}</div>
             <div className={`h-2 w-full overflow-hidden rounded-full ${T.progressTrack} sm:w-1/2`}><div className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${progress}%` }} /></div>
@@ -519,7 +527,6 @@ export default function TodoApp() {
               <AnimatePresence>
                 {visibleTasks.map((task) => (
                   <motion.li key={task.id} initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} exit={{opacity:0, scale:0.98, y:-6}} transition={{duration:0.18}} className={`flex items-center justify-between gap-2 rounded-xl border ${T.border} ${T.listItem} p-3`}>
-                    {/* Left: grow + wrap */}
                     <div className="flex items-start gap-3 min-w-0 flex-1">
                       <button onClick={() => toggleTask(task.id)} className={`h-5 w-5 shrink-0 rounded-md border ${theme==='dark'? (task.done ? 'border-emerald-400 bg-emerald-500/30':'border-white/20') : (task.done ? 'border-emerald-500 bg-emerald-100':'border-gray-300')}`} aria-label="toggle" />
                       {active === "all" && (<span className={`h-2.5 w-2.5 shrink-0 rounded-full ${colorOf(task.category)}`} title={labelOf(task.category)} />)}
@@ -530,7 +537,6 @@ export default function TodoApp() {
                       {task.priority === 'low' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs ${T.pillLow}`}>{t("low")}</span>)}
                       {task.pinned && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillPinned}`}><Pin className="h-3 w-3"/>{isAR? "مثبّت": "Pinned"}</span>)}
                     </div>
-                    {/* Right actions */}
                     <div className="flex items-center gap-1 shrink-0">
                       <button onClick={()=> setNoteModal({ open:true, id: task.id, value: task.note || "" })} title={t("notesBtn")} className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}><StickyNote className="h-4 w-4"/></button>
                       <button onClick={()=> togglePin(task.id)} title={task.pinned? t("unpin"): t("pin")} className={`rounded-md px-2 py-1 ${task.pinned? 'text-amber-500' : (theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100')}`}><Pin className="h-4 w-4"/></button>
@@ -554,7 +560,7 @@ export default function TodoApp() {
         </main>
       </div>
 
-      {/* Rename Modal */}
+      {/* Modals */}
       {renameModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
@@ -565,7 +571,6 @@ export default function TodoApp() {
         </div>
       )}
 
-      {/* Delete Modal */}
       {deleteModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
@@ -576,7 +581,6 @@ export default function TodoApp() {
         </div>
       )}
 
-      {/* Notes Modal */}
       {noteModal.open && (
         <div className={`fixed inset-0 z-[65] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
