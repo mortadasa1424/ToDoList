@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Plus, FolderPlus, Edit2, Trash2, GripVertical, X,
-  CalendarDays, Menu, Flag, Filter, Pin, StickyNote
+  CalendarDays, Menu, Flag, Filter, Pin, StickyNote, Sun, Moon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,100 +11,12 @@ export default function TodoApp() {
   const TASKS_KEY = "todo:tasks";
   const COLORS_KEY = "todo:catColors";
   const THEME_KEY = "todo:theme";
-  const LANG_KEY = "todo:lang";
 
-  // ===== Theme (يبقى موجود لكن بدون زر في الهيدر) =====
+  // ===== Theme =====
   const [theme, setTheme] = useState(() => {
     try { return localStorage.getItem(THEME_KEY) || "dark"; } catch { return "dark"; }
   });
   useEffect(() => { try { localStorage.setItem(THEME_KEY, theme); } catch {} }, [theme]);
-
-  // ===== Language =====
-  const [lang, setLang] = useState(() => {
-    try { return localStorage.getItem(LANG_KEY) || "en"; } catch { return "en"; }
-  });
-  useEffect(() => { try { localStorage.setItem(LANG_KEY, lang); } catch {} }, [lang]);
-
-  const isAR = lang === "ar";
-  const dir = isAR ? "rtl" : "ltr";
-
-  // ===== i18n strings =====
-  const S = useMemo(() => ({
-    en: {
-      appTitle: "To-Do List",
-      sections: "Sections",
-      new: "New",
-      sectionName: "Section name",
-      add: "Add",
-      all: "All",
-      general: "General",
-      noTasks: "No tasks in this section yet",
-      stats: (d, l, t) => `${d} done • ${l} left • ${t} total`,
-      dateLocale: "en-US",
-      priority: "Set priority",
-      urgent: "Urgent",
-      low: "Low",
-      notes: "Task Notes",
-      notesPh: "Write more details about this task…",
-      rename: "Rename Section",
-      newName: "New name",
-      cancel: "Cancel",
-      save: "Save",
-      delete: "Delete",
-      deleteTitle: "Delete Section",
-      deleteMsg: "This will move all tasks in this section to General. Continue?",
-      confirmReset: "Delete all data? Sections and tasks will be permanently removed.",
-      limitSections: "Sorry, you can't add more than 5 sections.",
-      todayLabel: "", // not shown; date only
-      langBtn: "AR", // what the button shows to switch TO
-      menu: "Menu",
-      priorityBtn: "Priority",
-      deleteBtn: "Delete",
-      pin: "Pin",
-      unpin: "Unpin",
-      notesBtn: "Notes",
-    },
-    ar: {
-      appTitle: "قائمة المهام",
-      sections: "الأقسام",
-      new: "جديد",
-      sectionName: "اسم القسم",
-      add: "إضافة",
-      all: "الكل",
-      general: "عام",
-      noTasks: "لا توجد مهام في هذا القسم بعد",
-      stats: (d, l, t) => `${d} منجزة • ${l} متبقية • ${t} الإجمالي`,
-      dateLocale: "ar",
-      priority: "تعيين الأولوية",
-      urgent: "عاجلة",
-      low: "منخفضة",
-      notes: "ملاحظات المهمة",
-      notesPh: "اكتب تفاصيل أكثر عن هذه المهمة…",
-      rename: "إعادة تسمية القسم",
-      newName: "الاسم الجديد",
-      cancel: "إلغاء",
-      save: "حفظ",
-      delete: "حذف",
-      deleteTitle: "حذف القسم",
-      deleteMsg: "سيتم نقل كل المهام في هذا القسم إلى قسم «عام». هل تريد المتابعة؟",
-      confirmReset: "هل تريد حذف كل البيانات؟ سيتم مسح الأقسام والمهام نهائيًا.",
-      limitSections: "عذرًا، لا يمكنك إضافة أكثر من 5 أقسام.",
-      todayLabel: "",
-      langBtn: "EN",
-      menu: "القائمة",
-      priorityBtn: "الأولوية",
-      deleteBtn: "حذف",
-      pin: "تثبيت",
-      unpin: "إلغاء التثبيت",
-      notesBtn: "ملاحظات",
-    }
-  }), []);
-
-  const t = (k, ...args) => {
-    const pack = S[lang];
-    const val = pack[k];
-    return typeof val === "function" ? val(...args) : val;
-  };
 
   // quick helpers for theme styles
   const T = useMemo(() => {
@@ -127,7 +39,7 @@ export default function TodoApp() {
       pillLow: dark ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-100 text-emerald-700",
       pillPinned: dark ? "bg-white/10 text-white/80" : "bg-gray-100 text-gray-700",
     };
-  }, [theme, lang]);
+  }, [theme]);
 
   // ===== Category colors palette (tailwind classes) =====
   const PALETTE = [
@@ -165,47 +77,42 @@ export default function TodoApp() {
   // ===== Helpers =====
   const sanitize = (s) => (s || "").replace(/[\u0000-\u001F\u007F]/g, " ").replace(/[<>]/g, "").trim();
   const uid = () => Math.random().toString(36).slice(2, 10);
-
-  const labelOf = (cat) => {
-    if (cat === "general") return t("general");
-    if (cat === "all") return t("all");
-    return cat;
-  };
+  const labelOf = (cat) => (cat === "general" ? "General" : cat === "all" ? "All" : cat);
   const colorOf = (cat) => catColors[cat] || "bg-white/40";
 
   // ===== Sounds (Web Audio) =====
   const audioCtxRef = useRef(null);
   const ensureCtx = () => {
-    const AudioCtx = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return null;
     audioCtxRef.current = audioCtxRef.current || new AudioCtx();
     return audioCtxRef.current;
   };
 
   const playDone = () => {
-    try { const ctx = ensureCtx(); if (!ctx) return; const t0 = ctx.currentTime;
+    try { const ctx = ensureCtx(); if (!ctx) return; const t = ctx.currentTime;
       const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.type = "triangle"; o.frequency.setValueAtTime(880, t0);
-      g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(0.18, t0 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28); o.connect(g); g.connect(ctx.destination);
-      o.start(t0); o.stop(t0 + 0.3);
+      o.type = "triangle"; o.frequency.setValueAtTime(880, t);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.18, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28); o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t + 0.3);
     } catch {}
   };
 
   const playDelete = () => {
-    try { const ctx = ensureCtx(); if (!ctx) return; const t0 = ctx.currentTime;
+    try { const ctx = ensureCtx(); if (!ctx) return; const t = ctx.currentTime;
       const o = ctx.createOscillator(); o.type = 'sine';
-      o.frequency.setValueAtTime(300, t0); o.frequency.exponentialRampToValueAtTime(240, t0 + 0.18);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(0.06, t0 + 0.015);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22); o.connect(g); g.connect(ctx.destination);
-      o.start(t0); o.stop(t0 + 0.24);
+      o.frequency.setValueAtTime(300, t); o.frequency.exponentialRampToValueAtTime(240, t + 0.18);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.06, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t + 0.24);
       const bufferSize = 0.16 * ctx.sampleRate; const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = noiseBuffer.getChannelData(0); for (let i=0;i<bufferSize;i++) data[i]=(Math.random()*2-1)*(1-i/bufferSize);
       const noise = ctx.createBufferSource(); noise.buffer = noiseBuffer;
       const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=750; lp.Q.value=0.7;
-      const gN = ctx.createGain(); gN.gain.setValueAtTime(0.0001, t0); gN.gain.linearRampToValueAtTime(0.03, t0 + 0.01);
-      gN.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.14); noise.connect(lp); lp.connect(gN); gN.connect(ctx.destination);
-      noise.start(t0); noise.stop(t0 + 0.16);
+      const gN = ctx.createGain(); gN.gain.setValueAtTime(0.0001, t); gN.gain.linearRampToValueAtTime(0.03, t + 0.01);
+      gN.gain.exponentialRampToValueAtTime(0.0001, t + 0.14); noise.connect(lp); lp.connect(gN); gN.connect(ctx.destination);
+      noise.start(t); noise.stop(t + 0.16);
     } catch {}
   };
 
@@ -235,7 +142,7 @@ export default function TodoApp() {
     if (!clean || clean === "all" || clean === "general") return;
     const customCount = categories.filter(c => c !== "general").length;
     if (customCount >= 5) {
-      const msg = t("limitSections");
+      const msg = "Sorry, you can't add more than 5 sections.";
       alert(msg);
       setNewCatError(msg);
       setNewCatOpen(true); setTimeout(() => newCatRef.current?.focus(), 0);
@@ -294,10 +201,7 @@ export default function TodoApp() {
   const [prioFilter, setPrioFilter] = useState('all');
 
   const inputRef = useRef(null);
-  const today = useMemo(
-    () => new Intl.DateTimeFormat(S[lang].dateLocale, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date()),
-    [lang]
-  );
+  const today = useMemo(() => new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date()), []);
   const baseTasks = useMemo(() => active === 'all' ? tasks : tasks.filter((t) => t.category === active), [tasks, active]);
   const filtered = useMemo(() => prioFilter === 'all' ? baseTasks : baseTasks.filter((t)=> (t.priority||'normal') === prioFilter), [baseTasks, prioFilter]);
   const visibleTasks = useMemo(() => {
@@ -348,7 +252,7 @@ export default function TodoApp() {
 
   // ===== Reset All =====
   const resetAll = () => {
-    if (!confirm(t("confirmReset"))) return;
+    if (!confirm("Sure ")) return;
     try {
       localStorage.removeItem(CATS_KEY);
       localStorage.removeItem(TASKS_KEY);
@@ -363,7 +267,7 @@ export default function TodoApp() {
   };
 
   return (
-    <div className={`min-h-screen ${T.root}`} dir={dir}>
+    <div className={`min-h-screen ${T.root}`}>
       {/* Animated gradient background */}
       <style>{gradientCss}</style>
       <div className="fixed inset-0 -z-10 opacity-70" style={{
@@ -381,15 +285,14 @@ export default function TodoApp() {
             <div className="flex items-center gap-2 sm:gap-3">
               <button
                 className={`sm:hidden rounded-lg border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} p-2`}
-                onClick={()=>setSidebarOpen(s=>!s)} title={t("menu")}>
+                onClick={()=>setSidebarOpen(s=>!s)} title="Menu">
                 <Menu className="h-5 w-5"/>
               </button>
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">{t("appTitle")}</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">To-Do List</h1>
               <span className={`hidden sm:inline text-sm ${T.stat}`}>• {labelOf(active)}</span>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Reset */}
               <button
                 onClick={resetAll}
                 className={`rounded-lg border ${T.border} ${theme==='dark' ? 'bg-white/5 hover:bg-white/10 text-rose-300' : 'bg-white hover:bg-rose-50 text-rose-700'} p-2`}
@@ -397,17 +300,16 @@ export default function TodoApp() {
                 <Trash2 className="h-4 w-4" />
               </button>
 
-              {/* Language toggle (بدل زر الثيم) */}
               <button
-                onClick={()=> setLang(l => l === "en" ? "ar" : "en")}
-                className={`inline-flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-3 py-2`}
-                title="Language">
-                <span className="text-sm font-medium">{S[lang].langBtn}</span>
+                onClick={()=> setTheme(theme==='dark'? 'light':'dark')}
+                className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-2.5 py-1.5 sm:px-3 sm:py-2`}
+                title={theme==='dark'? 'Light mode':'Dark mode'}>
+                {theme==='dark'? <Sun className="h-4 w-4"/> : <Moon className="h-4 w-4"/>}
+                <span className="text-xs sm:text-sm font-medium">{theme==='dark'? 'Light':'Dark'}</span>
               </button>
             </div>
           </div>
 
-          {/* Row 2 controls */}
           <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
             <ProgressRing value={progress} />
             <div className={`flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-3 py-1.5`}>
@@ -415,21 +317,20 @@ export default function TodoApp() {
               <span className="text-sm">{today}</span>
             </div>
 
-            {/* Priority filter */}
             <div className={`hidden sm:flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-2 py-1.5`}>
               <Filter className="h-4 w-4 opacity-80"/>
               <div className={`flex overflow-hidden rounded-lg border ${T.border}`}>
-                <button onClick={()=>setPrioFilter('all')} className={`px-2 py-1 text-xs ${prioFilter==='all'?(theme==='dark'? 'bg-white/10':'bg-gray-100'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>{t("all")}</button>
-                <button onClick={()=>setPrioFilter('urgent')} className={`px-2 py-1 text-xs ${prioFilter==='urgent'?(theme==='dark'? 'bg-white/10 text-rose-300':'bg-rose-50 text-rose-700'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>{t("urgent")}</button>
-                <button onClick={()=>setPrioFilter('low')} className={`px-2 py-1 text-xs ${prioFilter==='low'?(theme==='dark'? 'bg-white/10 text-emerald-300':'bg-emerald-50 text-emerald-700'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>{t("low")}</button>
+                <button onClick={()=>setPrioFilter('all')} className={`px-2 py-1 text-xs ${prioFilter==='all'?(theme==='dark'? 'bg-white/10':'bg-gray-100'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>All</button>
+                <button onClick={()=>setPrioFilter('urgent')} className={`px-2 py-1 text-xs ${prioFilter==='urgent'?(theme==='dark'? 'bg-white/10 text-rose-300':'bg-rose-50 text-rose-700'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>Urgent</button>
+                <button onClick={()=>setPrioFilter('low')} className={`px-2 py-1 text-xs ${prioFilter==='low'?(theme==='dark'? 'bg-white/10 text-emerald-300':'bg-emerald-50 text-emerald-700'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>Low</button>
               </div>
             </div>
             <div className={`sm:hidden flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-2 py-1.5`}>
               <Filter className="h-4 w-4 opacity-80"/>
               <select value={prioFilter} onChange={(e)=>setPrioFilter(e.target.value)} className="bg-transparent text-xs focus:outline-none">
-                <option value="all">{t("all")}</option>
-                <option value="urgent">{t("urgent")}</option>
-                <option value="low">{t("low")}</option>
+                <option value="all">All</option>
+                <option value="urgent">Urgent</option>
+                <option value="low">Low</option>
               </select>
             </div>
           </div>
@@ -437,45 +338,34 @@ export default function TodoApp() {
       </header>
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-3 sm:gap-4 p-3 sm:p-4 sm:grid-cols-[260px_1fr]">
-        {/* Mobile drawer backdrop */}
         {sidebarOpen && (
-          <button
-            className="sm:hidden fixed inset-0 z-40 bg-black/40"
-            onClick={()=>setSidebarOpen(false)}
-            aria-label="Close sidebar"
-          />
+          <button className="sm:hidden fixed inset-0 z-40 bg-black/40" onClick={()=>setSidebarOpen(false)} aria-label="Close sidebar"/>
         )}
 
         {/* Sidebar */}
-        <aside
-          className={`${sidebarOpen? 'sm:block fixed left-0 top-0 z-50 h-full w-[85%] max-w-xs p-3' : 'hidden sm:block p-3'} relative rounded-2xl border ${T.border} ${T.card} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}
-        >
-          {/* Header with inline New button */}
+        <aside className={`${sidebarOpen? 'sm:block fixed left-0 top-0 z-50 h-full w-[85%] max-w-xs p-3' : 'hidden sm:block p-3'} relative rounded-2xl border ${T.border} ${T.card} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
           <div className={`mb-2 flex items-center justify-between text-xs uppercase tracking-wide ${T.stat}`}>
-            <span>{t("sections")}</span>
-            <button onClick={() => { setNewCatOpen((v) => !v); setTimeout(() => newCatRef.current?.focus(), 0); }} className={`inline-flex items-center gap-2 rounded-lg border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-2 py-1 text-[11px]`} title={t("new")}>
-              <FolderPlus className="h-3.5 w-3.5" /> {t("new")}
+            <span>Sections</span>
+            <button onClick={() => { setNewCatOpen((v) => !v); setTimeout(() => newCatRef.current?.focus(), 0); }} className={`inline-flex items-center gap-2 rounded-lg border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-2 py-1 text-[11px]`} title="New Section">
+              <FolderPlus className="h-3.5 w-3.5" /> New
             </button>
           </div>
 
-          {/* Inline New Section form */}
           {newCatOpen && (
             <>
               <div className="mb-1 grid grid-cols-[1fr_auto] items-stretch gap-2">
-                <input ref={newCatRef} value={newCatName} onChange={(e) => { setNewCatName(e.target.value); setNewCatError(""); }} onKeyDown={(e) => { if (e.key === "Enter") createCategory(); if (e.key === "Escape") { setNewCatOpen(false); setNewCatName(""); } }} placeholder={t("sectionName")} className={`h-[44px] w-full rounded-lg border ${T.border} ${T.input} px-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
-                <button onClick={createCategory} className="h-[44px] shrink-0 rounded-lg bg-cyan-600 px-4 text-sm font-semibold text-white hover:bg-cyan-500">{t("add")}</button>
+                <input ref={newCatRef} value={newCatName} onChange={(e) => { setNewCatName(e.target.value); setNewCatError(""); }} onKeyDown={(e) => { if (e.key === "Enter") createCategory(); if (e.key === "Escape") { setNewCatOpen(false); setNewCatName(""); } }} placeholder="Section name" className={`h-[44px] w-full rounded-lg border ${T.border} ${T.input} px-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
+                <button onClick={createCategory} className="h-[44px] shrink-0 rounded-lg bg-cyan-600 px-4 text-sm font-semibold text-white hover:bg-cyan-500">Add</button>
               </div>
               {newCatError && (<div className="mb-2 text-rose-600 text-xs">{newCatError}</div>)}
             </>
           )}
 
           <div className="flex flex-wrap gap-2 sm:block">
-            {/* ALL (virtual) */}
             <div key="all" className={`group mb-2 flex items-center justify-between rounded-xl px-2 py-1.5 transition ${T.hoverRow} ${active === "all" ? (theme==='dark'? 'bg-white/10':'bg-gray-100') : ''}`} onClick={() => setActive("all")}>
-              <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full ${theme==='dark'?'bg-white/40':'bg-gray-400'}"></span>{t("all")}</span>
+              <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full ${theme==='dark'?'bg-white/40':'bg-gray-400'}"></span>All</span>
             </div>
 
-            {/* Real categories */}
             <AnimatePresence>
               {categories.map((cat) => (
                 <motion.div key={cat} initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-6}} transition={{duration:0.18}} draggable onDragStart={onDragStart(cat)} onDragOver={onDragOver(cat)} onDrop={onDrop(cat)} onContextMenu={(e) => openSecMenu(e, cat)} className={`group mb-2 flex items-center justify-between rounded-xl px-2 py-1.5 transition ${T.hoverRow} ${ active === cat ? (theme==='dark'? 'bg-white/10':'bg-gray-100') : '' }`}>
@@ -489,12 +379,11 @@ export default function TodoApp() {
             </AnimatePresence>
           </div>
 
-          {/* Section context menu */}
           {secMenu.open && (
             <div ref={secMenuRef} className={`absolute z-50 min-w-[180px] overflow-hidden rounded-xl border ${T.border} ${T.menuBg} p-1 shadow-xl`} style={{ left: Math.min(secMenu.x - (document.body.getBoundingClientRect().left || 0), 260), top: Math.max(8, secMenu.y - 80) }}>
-              <button onClick={() => { setRenameModal({ open: true, cat: secMenu.cat, value: labelOf(secMenu.cat) }); setSecMenu({ ...secMenu, open: false }); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-50'}`}><Edit2 className="h-4 w-4" /> {t("rename")}</button>
+              <button onClick={() => { setRenameModal({ open: true, cat: secMenu.cat, value: labelOf(secMenu.cat) }); setSecMenu({ ...secMenu, open: false }); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-50'}`}><Edit2 className="h-4 w-4" /> Rename</button>
               {secMenu.cat !== "general" && (
-                <button onClick={() => { setDeleteModal({ open: true, cat: secMenu.cat }); setSecMenu({ ...secMenu, open: false }); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${T.menuTextDanger}`}><Trash2 className="h-4 w-4" /> {t("delete")}</button>
+                <button onClick={() => { setDeleteModal({ open: true, cat: secMenu.cat }); setSecMenu({ ...secMenu, open: false }); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${T.menuTextDanger}`}><Trash2 className="h-4 w-4" /> Delete</button>
               )}
             </div>
           )}
@@ -502,29 +391,20 @@ export default function TodoApp() {
 
         {/* Content */}
         <main className={`relative rounded-2xl border ${T.border} ${T.card} p-3 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
-          {/* Add */}
           <div className="mb-3 sm:mb-4 flex w-full">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder={isAR ? "أضف مهمة…" : "Add a task…"}
-              className={`flex-1 rounded-l-xl border ${T.border} ${T.input} p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`}
-              onKeyDown={(e) => { if (e.key === "Enter") { addTask(e.target.value); e.target.value = ""; } }}
-            />
+            <input ref={inputRef} type="text" placeholder="Add a task…" className={`flex-1 rounded-l-xl border ${T.border} ${T.input} p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} onKeyDown={(e) => { if (e.key === "Enter") { addTask(e.target.value); e.target.value = ""; } }} />
             <button onClick={() => { const el = inputRef.current; if (!el) return; addTask(el.value); el.value = ""; el.focus(); }} className="group rounded-r-xl bg-gradient-to-br from-cyan-500 to-blue-500 px-4 sm:px-6 text-sm font-semibold text-white shadow-lg shadow-cyan-900/30 transition hover:from-cyan-400 hover:to-blue-400 active:translate-y-px">
-              <span className="inline-flex items-center gap-2"><Plus className="h-4 w-4 transition-transform group-active:-rotate-12" /> {t("add")}</span>
+              <span className="inline-flex items-center gap-2"><Plus className="h-4 w-4 transition-transform group-active:-rotate-12" /> Add</span>
             </button>
           </div>
 
-          {/* Section stats / progress */}
           <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
-            <div className={`text-sm ${T.stat}`}>{t("stats")(doneCount, visibleTasks.length - doneCount, visibleTasks.length)}</div>
+            <div className={`text-sm ${T.stat}`}>{doneCount} done • {visibleTasks.length - doneCount} left • {visibleTasks.length} total</div>
             <div className={`h-2 w-full overflow-hidden rounded-full ${T.progressTrack} sm:w-1/2`}><div className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${progress}%` }} /></div>
           </div>
 
-          {/* List */}
           {visibleTasks.length === 0 ? (
-            <div className={`rounded-xl border border-dashed ${T.emptyBorder} p-6 sm:p-8 text-center ${T.emptyText}`}>{t("noTasks")}</div>
+            <div className={`rounded-xl border border-dashed ${T.emptyBorder} p-6 sm:p-8 text-center ${T.emptyText}`}>No tasks in this section yet</div>
           ) : (
             <ul className="space-y-2">
               <AnimatePresence>
@@ -537,16 +417,16 @@ export default function TodoApp() {
                       <span className={`text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed ${task.done ? (theme==='dark' ? 'text-white/40 line-through' : 'text-gray-400 line-through') : ''}`}>
                         {task.text}
                       </span>
-                      {task.priority === 'urgent' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillUrgent}`}><Flag className="h-3 w-3"/> {t("urgent")}</span>)}
-                      {task.priority === 'low' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs ${T.pillLow}`}>{t("low")}</span>)}
-                      {task.pinned && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillPinned}`}><Pin className="h-3 w-3"/>{isAR? "مثبّت": "Pinned"}</span>)}
+                      {task.priority === 'urgent' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillUrgent}`}><Flag className="h-3 w-3"/> Urgent</span>)}
+                      {task.priority === 'low' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs ${T.pillLow}`}>Low</span>)}
+                      {task.pinned && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillPinned}`}><Pin className="h-3 w-3"/>Pinned</span>)}
                     </div>
                     {/* Right actions */}
                     <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={()=> setNoteModal({ open:true, id: task.id, value: task.note || "" })} title={t("notesBtn")} className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}><StickyNote className="h-4 w-4"/></button>
-                      <button onClick={()=> togglePin(task.id)} title={task.pinned? t("unpin"): t("pin")} className={`rounded-md px-2 py-1 ${task.pinned? 'text-amber-500' : (theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100')}`}><Pin className="h-4 w-4"/></button>
-                      <button onClick={(e)=> openTaskMenu(e, task.id)} title={t("priorityBtn")} className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>⋯</button>
-                      <button onClick={() => deleteTask(task.id)} className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-rose-400 hover:bg-rose-500/10':'text-rose-600 hover:bg-rose-50'}`} title={t("deleteBtn")}>✕</button>
+                      <button onClick={()=> setNoteModal({ open:true, id: task.id, value: task.note || "" })} title="Notes" className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}><StickyNote className="h-4 w-4"/></button>
+                      <button onClick={()=> togglePin(task.id)} title={task.pinned?"Unpin":"Pin"} className={`rounded-md px-2 py-1 ${task.pinned? 'text-amber-500' : (theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100')}`}><Pin className="h-4 w-4"/></button>
+                      <button onClick={(e)=> openTaskMenu(e, task.id)} title="Priority" className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>⋯</button>
+                      <button onClick={() => deleteTask(task.id)} className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-rose-400 hover:bg-rose-500/10':'text-rose-600 hover:bg-rose-50'}`} title="Delete">✕</button>
                     </div>
                   </motion.li>
                 ))}
@@ -554,24 +434,24 @@ export default function TodoApp() {
             </ul>
           )}
 
-          {/* Task priority menu (Urgent & Low only) */}
           {taskMenu.open && (
             <div ref={taskMenuRef} className={`fixed z-50 min-w-[180px] overflow-hidden rounded-xl border ${T.border} ${T.menuBg} p-1 shadow-xl`} style={{ left: Math.min(taskMenu.x, window.innerWidth - 190), top: Math.min(taskMenu.y, window.innerHeight - 120) }}>
-              <div className={`px-3 py-1 text-xs uppercase tracking-wide ${T.stat}`}>{t("priority")}</div>
-              <button onClick={()=> { setPriority(taskMenu.id, 'urgent'); setTaskMenu({...taskMenu, open:false}); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10 text-rose-300':'hover:bg-rose-50 text-rose-700'}`}><Flag className="h-4 w-4"/> {t("urgent")}</button>
-              <button onClick={()=> { setPriority(taskMenu.id, 'low'); setTaskMenu({...taskMenu, open:false}); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10':'hover:bg-emerald-50'}`}>{t("low")}</button>
+              <div className={`px-3 py-1 text-xs uppercase tracking-wide ${T.stat}`}>Set priority</div>
+              <button onClick={()=> { setPriority(taskMenu.id, 'urgent'); setTaskMenu({...taskMenu, open:false}); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10 text-rose-300':'hover:bg-rose-50 text-rose-700'}`}><Flag className="h-4 w-4"/> Urgent</button>
+              <button onClick={()=> { setPriority(taskMenu.id, 'low'); setTaskMenu({...taskMenu, open:false}); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10':'hover:bg-emerald-50'}`}>Low</button>
             </div>
           )}
         </main>
       </div>
 
+      {/* Modals ... (نفس كودك السابق) */}
       {/* Rename Modal */}
       {renameModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">{t("rename")}</h3><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
-            <input autoFocus value={renameModal.value} onChange={(e) => setRenameModal((m) => ({ ...m, value: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); } }} placeholder={t("newName")} className={`mb-3 w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
-            <div className="flex justify-end gap-2"><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button><button onClick={() => { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">{t("save")}</button></div>
+            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">Rename Section</h3><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
+            <input autoFocus value={renameModal.value} onChange={(e) => setRenameModal((m) => ({ ...m, value: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); } }} placeholder="New name" className={`mb-3 w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
+            <div className="flex justify-end gap-2"><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>Cancel</button><button onClick={() => { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">Save</button></div>
           </div>
         </div>
       )}
@@ -580,9 +460,9 @@ export default function TodoApp() {
       {deleteModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">{t("deleteTitle")}</h3><button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
-            <p className={`${theme==='dark'? 'text-white/80':'text-gray-700'} mb-4`}>{t("deleteMsg")}</p>
-            <div className="flex justify-end gap-2"><button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button><button onClick={() => { deleteCategory(deleteModal.cat); setDeleteModal({ open: false, cat: null }); }} className="rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white hover:bg-rose-500">{t("delete")}</button></div>
+            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">Delete Section</h3><button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
+            <p className={`${theme==='dark'? 'text-white/80':'text-gray-700'} mb-4`}>This will move all tasks in this section to <b>General</b>. Continue?</p>
+            <div className="flex justify-end gap-2"><button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>Cancel</button><button onClick={() => { deleteCategory(deleteModal.cat); setDeleteModal({ open: false, cat: null }); }} className="rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white hover:bg-rose-500">Delete</button></div>
           </div>
         </div>
       )}
@@ -591,9 +471,9 @@ export default function TodoApp() {
       {noteModal.open && (
         <div className={`fixed inset-0 z-[65] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">{t("notes")}</h3><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
-            <textarea value={noteModal.value} onChange={(e)=> setNoteModal((m)=> ({...m, value: e.target.value}))} placeholder={t("notesPh")} className={`mb-3 min-h-[120px] w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
-            <div className="flex justify-end gap-2"><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button><button onClick={() => { setNote(noteModal.id, noteModal.value); setNoteModal({ open: false, id: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">{t("save")}</button></div>
+            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">Task Notes</h3><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
+            <textarea value={noteModal.value} onChange={(e)=> setNoteModal((m)=> ({...m, value: e.target.value}))} placeholder="Write more details about this task…" className={`mb-3 min-h-[120px] w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
+            <div className="flex justify-end gap-2"><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>Cancel</button><button onClick={() => { setNote(noteModal.id, noteModal.value); setNoteModal({ open: false, id: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">Save</button></div>
           </div>
         </div>
       )}
