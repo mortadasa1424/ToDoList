@@ -257,7 +257,7 @@ export default function TodoApp() {
       localStorage.removeItem(CATS_KEY);
       localStorage.removeItem(TASKS_KEY);
       localStorage.removeItem(COLORS_KEY);
-      // localStorage.removeItem(THEME_KEY); // فكّه لو تبي يمسح الثيم
+      // localStorage.removeItem(THEME_KEY);
     } catch {}
     setCategories(["general"]);
     setCatColors({ general: PALETTE[2] });
@@ -281,7 +281,6 @@ export default function TodoApp() {
 
       <header className={`sticky top-0 z-40 border-b ${T.header} backdrop-blur`}>
         <div className="mx-auto max-w-6xl p-3 sm:p-4">
-          {/* Row 1 (mobile stacked) */}
           <div className="flex items-center justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 sm:gap-3">
               <button
@@ -294,7 +293,6 @@ export default function TodoApp() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Reset */}
               <button
                 onClick={resetAll}
                 className={`rounded-lg border ${T.border} ${theme==='dark' ? 'bg-white/5 hover:bg-white/10 text-rose-300' : 'bg-white hover:bg-rose-50 text-rose-700'} p-2`}
@@ -302,7 +300,6 @@ export default function TodoApp() {
                 <Trash2 className="h-4 w-4" />
               </button>
 
-              {/* Theme */}
               <button
                 onClick={()=> setTheme(theme==='dark'? 'light':'dark')}
                 className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-2.5 py-1.5 sm:px-3 sm:py-2`}
@@ -313,7 +310,6 @@ export default function TodoApp() {
             </div>
           </div>
 
-          {/* Row 2 controls (wrap on mobile) */}
           <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
             <ProgressRing value={progress} />
             <div className={`flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-3 py-1.5`}>
@@ -321,7 +317,6 @@ export default function TodoApp() {
               <span className="text-sm">{today}</span>
             </div>
 
-            {/* Priority filter */}
             <div className={`hidden sm:flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-2 py-1.5`}>
               <Filter className="h-4 w-4 opacity-80"/>
               <div className={`flex overflow-hidden rounded-lg border ${T.border}`}>
@@ -343,20 +338,12 @@ export default function TodoApp() {
       </header>
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-3 sm:gap-4 p-3 sm:p-4 sm:grid-cols-[260px_1fr]">
-        {/* Mobile drawer backdrop */}
         {sidebarOpen && (
-          <button
-            className="sm:hidden fixed inset-0 z-40 bg-black/40"
-            onClick={()=>setSidebarOpen(false)}
-            aria-label="Close sidebar"
-          />
+          <button className="sm:hidden fixed inset-0 z-40 bg-black/40" onClick={()=>setSidebarOpen(false)} aria-label="Close sidebar"/>
         )}
 
         {/* Sidebar */}
-        <aside
-          className={`${sidebarOpen? 'sm:block fixed left-0 top-0 z-50 h-full w-[85%] max-w-xs p-3' : 'hidden sm:block p-3'} relative rounded-2xl border ${T.border} ${T.card} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}
-        >
-          {/* Header with inline New button */}
+        <aside className={`${sidebarOpen? 'sm:block fixed left-0 top-0 z-50 h-full w-[85%] max-w-xs p-3' : 'hidden sm:block p-3'} relative rounded-2xl border ${T.border} ${T.card} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
           <div className={`mb-2 flex items-center justify-between text-xs uppercase tracking-wide ${T.stat}`}>
             <span>Sections</span>
             <button onClick={() => { setNewCatOpen((v) => !v); setTimeout(() => newCatRef.current?.focus(), 0); }} className={`inline-flex items-center gap-2 rounded-lg border ${T.border} ${theme==='dark'? 'bg-white/5 hover:bg-white/10':'bg-white hover:bg-gray-50'} px-2 py-1 text-[11px]`} title="New Section">
@@ -364,7 +351,6 @@ export default function TodoApp() {
             </button>
           </div>
 
-          {/* Inline New Section form */}
           {newCatOpen && (
             <>
               <div className="mb-1 grid grid-cols-[1fr_auto] items-stretch gap-2">
@@ -376,12 +362,10 @@ export default function TodoApp() {
           )}
 
           <div className="flex flex-wrap gap-2 sm:block">
-            {/* ALL (virtual) */}
             <div key="all" className={`group mb-2 flex items-center justify-between rounded-xl px-2 py-1.5 transition ${T.hoverRow} ${active === "all" ? (theme==='dark'? 'bg-white/10':'bg-gray-100') : ''}`} onClick={() => setActive("all")}>
               <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full ${theme==='dark'?'bg-white/40':'bg-gray-400'}"></span>All</span>
             </div>
 
-            {/* Real categories */}
             <AnimatePresence>
               {categories.map((cat) => (
                 <motion.div key={cat} initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-6}} transition={{duration:0.18}} draggable onDragStart={onDragStart(cat)} onDragOver={onDragOver(cat)} onDrop={onDrop(cat)} onContextMenu={(e) => openSecMenu(e, cat)} className={`group mb-2 flex items-center justify-between rounded-xl px-2 py-1.5 transition ${T.hoverRow} ${ active === cat ? (theme==='dark'? 'bg-white/10':'bg-gray-100') : '' }`}>
@@ -395,7 +379,6 @@ export default function TodoApp() {
             </AnimatePresence>
           </div>
 
-          {/* Section context menu */}
           {secMenu.open && (
             <div ref={secMenuRef} className={`absolute z-50 min-w-[180px] overflow-hidden rounded-xl border ${T.border} ${T.menuBg} p-1 shadow-xl`} style={{ left: Math.min(secMenu.x - (document.body.getBoundingClientRect().left || 0), 260), top: Math.max(8, secMenu.y - 80) }}>
               <button onClick={() => { setRenameModal({ open: true, cat: secMenu.cat, value: labelOf(secMenu.cat) }); setSecMenu({ ...secMenu, open: false }); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-50'}`}><Edit2 className="h-4 w-4" /> Rename</button>
@@ -408,7 +391,6 @@ export default function TodoApp() {
 
         {/* Content */}
         <main className={`relative rounded-2xl border ${T.border} ${T.card} p-3 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
-          {/* Add */}
           <div className="mb-3 sm:mb-4 flex w-full">
             <input ref={inputRef} type="text" placeholder="Add a task…" className={`flex-1 rounded-l-xl border ${T.border} ${T.input} p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} onKeyDown={(e) => { if (e.key === "Enter") { addTask(e.target.value); e.target.value = ""; } }} />
             <button onClick={() => { const el = inputRef.current; if (!el) return; addTask(el.value); el.value = ""; el.focus(); }} className="group rounded-r-xl bg-gradient-to-br from-cyan-500 to-blue-500 px-4 sm:px-6 text-sm font-semibold text-white shadow-lg shadow-cyan-900/30 transition hover:from-cyan-400 hover:to-blue-400 active:translate-y-px">
@@ -416,13 +398,11 @@ export default function TodoApp() {
             </button>
           </div>
 
-          {/* Section stats / progress */}
           <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
             <div className={`text-sm ${T.stat}`}>{doneCount} done • {visibleTasks.length - doneCount} left • {visibleTasks.length} total</div>
             <div className={`h-2 w-full overflow-hidden rounded-full ${T.progressTrack} sm:w-1/2`}><div className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${progress}%` }} /></div>
           </div>
 
-          {/* List */}
           {visibleTasks.length === 0 ? (
             <div className={`rounded-xl border border-dashed ${T.emptyBorder} p-6 sm:p-8 text-center ${T.emptyText}`}>No tasks in this section yet</div>
           ) : (
@@ -430,18 +410,18 @@ export default function TodoApp() {
               <AnimatePresence>
                 {visibleTasks.map((task) => (
                   <motion.li key={task.id} initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} exit={{opacity:0, scale:0.98, y:-6}} transition={{duration:0.18}} className={`flex items-center justify-between gap-2 rounded-xl border ${T.border} ${T.listItem} p-3`}>
-                    {/* Left: checkbox + color dot (in All) + title */}
-                    <div className="flex items-center gap-3 min-w-0">
+                    {/* Left: make it grow and allow wrapping */}
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
                       <button onClick={() => toggleTask(task.id)} className={`h-5 w-5 shrink-0 rounded-md border ${theme==='dark'? (task.done ? 'border-emerald-400 bg-emerald-500/30':'border-white/20') : (task.done ? 'border-emerald-500 bg-emerald-100':'border-gray-300')}`} aria-label="toggle" />
                       {active === "all" && (<span className={`h-2.5 w-2.5 shrink-0 rounded-full ${colorOf(task.category)}`} title={labelOf(task.category)} />)}
-                      <span className={`text-sm sm:text-base break-words line-clamp-2 ${task.done ? (theme==='dark' ? 'text-white/40 line-through' : 'text-gray-400 line-through') : ''}`}>
+                      <span className={`text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed ${task.done ? (theme==='dark' ? 'text-white/40 line-through' : 'text-gray-400 line-through') : ''}`}>
                         {task.text}
                       </span>
                       {task.priority === 'urgent' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillUrgent}`}><Flag className="h-3 w-3"/> Urgent</span>)}
                       {task.priority === 'low' && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs ${T.pillLow}`}>Low</span>)}
                       {task.pinned && (<span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1 ${T.pillPinned}`}><Pin className="h-3 w-3"/>Pinned</span>)}
                     </div>
-                    {/* Right: actions */}
+                    {/* Right actions */}
                     <div className="flex items-center gap-1 shrink-0">
                       <button onClick={()=> setNoteModal({ open:true, id: task.id, value: task.note || "" })} title="Notes" className={`rounded-md px-2 py-1 ${theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}><StickyNote className="h-4 w-4"/></button>
                       <button onClick={()=> togglePin(task.id)} title={task.pinned?"Unpin":"Pin"} className={`rounded-md px-2 py-1 ${task.pinned? 'text-amber-500' : (theme==='dark'? 'text-white/80 hover:bg-white/10':'text-gray-700 hover:bg-gray-100')}`}><Pin className="h-4 w-4"/></button>
@@ -454,7 +434,6 @@ export default function TodoApp() {
             </ul>
           )}
 
-          {/* Task priority menu (Urgent & Low only) */}
           {taskMenu.open && (
             <div ref={taskMenuRef} className={`fixed z-50 min-w-[180px] overflow-hidden rounded-xl border ${T.border} ${T.menuBg} p-1 shadow-xl`} style={{ left: Math.min(taskMenu.x, window.innerWidth - 190), top: Math.min(taskMenu.y, window.innerHeight - 120) }}>
               <div className={`px-3 py-1 text-xs uppercase tracking-wide ${T.stat}`}>Set priority</div>
@@ -465,6 +444,7 @@ export default function TodoApp() {
         </main>
       </div>
 
+      {/* Modals ... (نفس كودك السابق) */}
       {/* Rename Modal */}
       {renameModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
