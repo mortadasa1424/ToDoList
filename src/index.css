@@ -1,3 +1,13 @@
 @import "tailwindcss";
 
+/* خلفية عامة (اخترت داكن عشان يطابق الشريط الأسود) */
 html, body, #root { height: 100%; }
+html, body { background: #0b0b0b; color: #fff; }
+
+/* خلّي الكونتينر الرئيسي يراعي النوتش */
+@media (display-mode: standalone) {
+  .app {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
