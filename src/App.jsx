@@ -417,50 +417,49 @@ export default function TodoApp() {
             </div>
           </div>
 
-{/* Row 2 */}
-<div className="mt-2 sm:mt-3 flex items-center gap-2 sm:gap-3">
-  {/* نسبة الإنجاز */}
-  <div className="shrink-0">
-    <ProgressRing value={progress} />
-  </div>
+          {/* Row 2 — التاريخ + الفلتر في نفس السطر */}
+          <div className="mt-2 sm:mt-3 flex items-center gap-2 sm:gap-3">
+            <div className="shrink-0">
+              <ProgressRing value={progress} />
+            </div>
 
-  {/* التاريخ — يتمدد ويقصّ النص إذا المساحة ضاقت */}
-  <div className={`min-w-0 flex flex-1 items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-3 py-1.5`}>
-    <CalendarDays className="h-4 w-4" />
-    <span className="text-sm truncate">{today}</span>
-  </div>
+            <div className={`min-w-0 flex flex-1 items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-3 py-1.5`}>
+              <CalendarDays className="h-4 w-4" />
+              <span className="text-sm truncate">{today}</span>
+            </div>
 
-  {/* فلتر مختصر للموبايل (Chip واحدة) */}
-  <div className={`sm:hidden shrink-0 flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-3 py-1.5`}>
-    <Filter className="h-4 w-4 opacity-80" />
-    <select
-      value={prioFilter}
-      onChange={(e)=>setPrioFilter(e.target.value)}
-      className="bg-transparent text-sm focus:outline-none"
-    >
-      <option value="all">{t('all')}</option>
-      <option value="urgent">{t('urgent')}</option>
-      <option value="low">{t('low')}</option>
-    </select>
-  </div>
+            {/* Mobile: select */}
+            <div className={`sm:hidden shrink-0 flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-3 py-1.5`}>
+              <Filter className="h-4 w-4 opacity-80" />
+              <select
+                value={prioFilter}
+                onChange={(e)=>setPrioFilter(e.target.value)}
+                className="bg-transparent text-sm focus:outline-none"
+              >
+                <option value="all">{t('all')}</option>
+                <option value="urgent">{t('urgent')}</option>
+                <option value="low">{t('low')}</option>
+              </select>
+            </div>
 
-  {/* فلتر كامل لسطح المكتب (3 أزرار) */}
-  <div className={`hidden sm:flex shrink-0 items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-2 py-1.5`}>
-    <Filter className="h-4 w-4 opacity-80"/>
-    <div className={`flex overflow-hidden rounded-lg border ${T.border}`}>
-      <button
-        onClick={()=>setPrioFilter('all')}
-        className={`px-2 py-1 text-xs ${prioFilter==='all' ? (theme==='dark' ? 'bg-white/10' : 'bg-gray-100') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
-      >{t('all')}</button>
-      <button
-        onClick={()=>setPrioFilter('urgent')}
-        className={`px-2 py-1 text-xs ${prioFilter==='urgent' ? (theme==='dark' ? 'bg-white/10 text-rose-300' : 'bg-rose-50 text-rose-700') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
-      >{t('urgent')}</button>
-      <button
-        onClick={()=>setPrioFilter('low')}
-        className={`px-2 py-1 text-xs ${prioFilter==='low' ? (theme==='dark' ? 'bg-white/10 text-emerald-300' : 'bg-emerald-50 text-emerald-700') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
-      >{t('low')}</button>
-    </div>
+            {/* Desktop: 3 buttons */}
+            <div className={`hidden sm:flex shrink-0 items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-2 py-1.5`}>
+              <Filter className="h-4 w-4 opacity-80"/>
+              <div className={`flex overflow-hidden rounded-lg border ${T.border}`}>
+                <button
+                  onClick={()=>setPrioFilter('all')}
+                  className={`px-2 py-1 text-xs ${prioFilter==='all' ? (theme==='dark' ? 'bg-white/10' : 'bg-gray-100') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
+                >{t('all')}</button>
+                <button
+                  onClick={()=>setPrioFilter('urgent')}
+                  className={`px-2 py-1 text-xs ${prioFilter==='urgent' ? (theme==='dark' ? 'bg-white/10 text-rose-300' : 'bg-rose-50 text-rose-700') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
+                >{t('urgent')}</button>
+                <button
+                  onClick={()=>setPrioFilter('low')}
+                  className={`px-2 py-1 text-xs ${prioFilter==='low' ? (theme==='dark' ? 'bg-white/10 text-emerald-300' : 'bg-emerald-50 text-emerald-700') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
+                >{t('low')}</button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -586,7 +585,11 @@ export default function TodoApp() {
 
           {/* Task priority menu */}
           {taskMenu.open && (
-            <div ref={taskMenuRef} className={`fixed z-50 min-w=[180px] overflow-hidden rounded-xl border ${T.border} ${T.menuBg} p-1 shadow-xl`} style={{ left: Math.min(taskMenu.x, window.innerWidth - 190), top: Math.min(taskMenu.y, window.innerHeight - 120) }}>
+            <div
+              ref={taskMenuRef}
+              className={`fixed z-50 min-w-[180px] overflow-hidden rounded-xl border ${T.border} ${T.menuBg} p-1 shadow-xl`}
+              style={{ left: Math.min(taskMenu.x, window.innerWidth - 190), top: Math.min(taskMenu.y, window.innerHeight - 120) }}
+            >
               <div className={`px-3 py-1 text-xs uppercase tracking-wide ${T.stat}`}>{t("priority")}</div>
               <button onClick={()=> { setPriority(taskMenu.id, 'urgent'); setTaskMenu({...taskMenu, open:false}); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10 text-rose-300':'hover:bg-rose-50 text-rose-700'}`}><Flag className="h-4 w-4"/> {t("urgent")}</button>
               <button onClick={()=> { setPriority(taskMenu.id, 'low'); setTaskMenu({...taskMenu, open:false}); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${theme==='dark'? 'hover:bg-white/10':'hover:bg-emerald-50'}`}>{t("low")}</button>
@@ -599,9 +602,15 @@ export default function TodoApp() {
       {renameModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">{t("rename")}</h3><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button></div>
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{t("rename")}</h3>
+              <button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button>
+            </div>
             <input autoFocus value={renameModal.value} onChange={(e) => setRenameModal((m) => ({ ...m, value: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); } }} placeholder={t("newName")} className={`mb-3 w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
-            <div className="flex justify-end gap-2"><button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button><button onClick={() => { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">{t("save")}</button></div>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setRenameModal({ open: false, cat: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button>
+              <button onClick={() => { renameCategory(renameModal.cat, renameModal.value); setRenameModal({ open: false, cat: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">{t("save")}</button>
+            </div>
           </div>
         </div>
       )}
@@ -609,9 +618,15 @@ export default function TodoApp() {
       {deleteModal.open && (
         <div className={`fixed inset-0 z-[60] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">{t("deleteTitle")}</h3><button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 ال-4" /></button></div>
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{t("deleteTitle")}</h3>
+              <button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button>
+            </div>
             <p className={`${theme==='dark'? 'text-white/80':'text-gray-700'} mb-4`}>{t("deleteMsg")}</p>
-            <div className="flex justify-end gap-2"><button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button><button onClick={() => { deleteCategory(deleteModal.cat); setDeleteModal({ open: false, cat: null }); }} className="rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white hover:bg-rose-500">{t("delete")}</button></div>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setDeleteModal({ open: false, cat: null })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button>
+              <button onClick={() => { deleteCategory(deleteModal.cat); setDeleteModal({ open: false, cat: null }); }} className="rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white hover:bg-rose-500">{t("delete")}</button>
+            </div>
           </div>
         </div>
       )}
@@ -619,9 +634,15 @@ export default function TodoApp() {
       {noteModal.open && (
         <div className={`fixed inset-0 z-[65] flex items-center justify-center ${theme==='dark'? 'bg-black/50':'bg-black/30'} p-4`}>
           <div className={`w-full max-w-sm rounded-2xl border ${T.border} ${T.menuBg} p-4 shadow-xl`}>
-            <div className="mb-3 flex items-center justify-between"><h3 className="text-lg font-semibold">{t("notes")}</h3><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 ال-4" /></button></div>
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{t("notes")}</h3>
+              <button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded p-1 ${theme==='dark'? 'hover:bg-white/10':'hover:bg-gray-100'}`}><X className="h-4 w-4" /></button>
+            </div>
             <textarea value={noteModal.value} onChange={(e)=> setNoteModal((m)=> ({...m, value: e.target.value}))} placeholder={t("notesPh")} className={`mb-3 min-h-[120px] w-full rounded-lg border ${T.border} ${T.input} p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/40`} />
-            <div className="flex justify-end gap-2"><button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button><button onClick={() => { setNote(noteModal.id, noteModal.value); setNoteModal({ open: false, id: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">{t("save")}</button></div>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setNoteModal({ open: false, id: null, value: "" })} className={`rounded-lg px-3 py-1.5 ${theme==='dark'? 'text-white/70 hover:bg-white/10':'text-gray-700 hover:bg-gray-100'}`}>{t("cancel")}</button>
+              <button onClick={() => { setNote(noteModal.id, noteModal.value); setNoteModal({ open: false, id: null, value: "" }); }} className="rounded-lg bg-cyan-600 px-3 py-1.5 font-semibold text-white hover:bg-cyan-500">{t("save")}</button>
+            </div>
           </div>
         </div>
       )}
