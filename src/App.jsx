@@ -434,7 +434,7 @@ export default function TodoApp() {
               <select
                 value={prioFilter}
                 onChange={(e)=>setPrioFilter(e.target.value)}
-                className="bg-transparent text-sm focus:outline-none"
+                className="bg-transparent text-[11px] focus:outline-none"
               >
                 <option value="all">{t('all')}</option>
                 <option value="urgent">{t('urgent')}</option>
