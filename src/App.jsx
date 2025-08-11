@@ -379,7 +379,7 @@ export default function TodoApp() {
       />
       <div className={`pointer-events-none fixed inset-x-0 top-0 -z-10 h-56 sm:h-64 animate-[floatSlow_6s_ease-in-out_infinite_alternate] ${theme==='dark'? 'bg-gradient-to-b from-white/5 to-transparent':'bg-gradient-to-b from-black/5 to-transparent'}`} />
 
-      <header className={`sticky top-0 z-40 border-b ${T.header} backdrop-blur`}>
+      <header className={`sticky [top:env(safe-area-inset-top)] z-40 border-b ${T.header} backdrop-blur`}>
         <div className="mx-auto max-w-6xl p-3 sm:p-4">
           <div className="flex items-center justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 sm:gap-3">
