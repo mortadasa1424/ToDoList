@@ -417,34 +417,52 @@ export default function TodoApp() {
             </div>
           </div>
 
-          {/* Row 2 */}
-          <div className="mt-2 sm:mt-3 flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-            <div className="shrink-0"><ProgressRing value={progress} /></div>
+{/* Row 2 */}
+<div className="mt-2 sm:mt-3 flex items-center gap-2 sm:gap-3">
+  {/* نسبة الإنجاز */}
+  <div className="shrink-0">
+    <ProgressRing value={progress} />
+  </div>
 
-            <div className={`flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-3 py-1.5 shrink-0`}>
-              <CalendarDays className="h-4 w-4" />
-              <span className="text-sm">{today}</span>
-            </div>
+  {/* التاريخ — يتمدد ويقصّ النص إذا المساحة ضاقت */}
+  <div className={`min-w-0 flex flex-1 items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-3 py-1.5`}>
+    <CalendarDays className="h-4 w-4" />
+    <span className="text-sm truncate">{today}</span>
+  </div>
 
-            {/* Priority filter (desktop) */}
-            <div className={`hidden sm:flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-2 py-1.5 shrink-0 ml-auto`}>
-              <Filter className="h-4 w-4 opacity-80"/>
-              <div className={`flex overflow-hidden rounded-lg border ${T.border}`}>
-                <button onClick={()=>setPrioFilter('all')} className={`px-2 py-1 text-xs ${prioFilter==='all'?(theme==='dark'? 'bg-white/10':'bg-gray-100'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>{t("all")}</button>
-                <button onClick={()=>setPrioFilter('urgent')} className={`px-2 py-1 text-xs ${prioFilter==='urgent'?(theme==='dark'? 'bg-white/10 text-rose-300':'bg-rose-50 text-rose-700'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>{t("urgent")}</button>
-                <button onClick={()=>setPrioFilter('low')} className={`px-2 py-1 text-xs ${prioFilter==='low'?(theme==='dark'? 'bg-white/10 text-emerald-300':'bg-emerald-50 text-emerald-700'):(theme==='dark'? 'hover:bg-white/5':'hover:bg-gray-50')}`}>{t("low")}</button>
-              </div>
-            </div>
+  {/* فلتر مختصر للموبايل (Chip واحدة) */}
+  <div className={`sm:hidden shrink-0 flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-3 py-1.5`}>
+    <Filter className="h-4 w-4 opacity-80" />
+    <select
+      value={prioFilter}
+      onChange={(e)=>setPrioFilter(e.target.value)}
+      className="bg-transparent text-sm focus:outline-none"
+    >
+      <option value="all">{t('all')}</option>
+      <option value="urgent">{t('urgent')}</option>
+      <option value="low">{t('low')}</option>
+    </select>
+  </div>
 
-            {/* Priority filter (mobile) */}
-            <div className={`sm:hidden flex items-center gap-2 rounded-xl border ${T.border} ${theme==='dark'? 'bg-white/5':'bg-white'} px-2 py-1.5`}>
-              <Filter className="h-4 w-4 opacity-80"/>
-              <select value={prioFilter} onChange={(e)=>setPrioFilter(e.target.value)} className="bg-transparent text-xs focus:outline-none">
-                <option value="all">{t("all")}</option>
-                <option value="urgent">{t("urgent")}</option>
-                <option value="low">{t("low")}</option>
-              </select>
-            </div>
+  {/* فلتر كامل لسطح المكتب (3 أزرار) */}
+  <div className={`hidden sm:flex shrink-0 items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-2 py-1.5`}>
+    <Filter className="h-4 w-4 opacity-80"/>
+    <div className={`flex overflow-hidden rounded-lg border ${T.border}`}>
+      <button
+        onClick={()=>setPrioFilter('all')}
+        className={`px-2 py-1 text-xs ${prioFilter==='all' ? (theme==='dark' ? 'bg-white/10' : 'bg-gray-100') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
+      >{t('all')}</button>
+      <button
+        onClick={()=>setPrioFilter('urgent')}
+        className={`px-2 py-1 text-xs ${prioFilter==='urgent' ? (theme==='dark' ? 'bg-white/10 text-rose-300' : 'bg-rose-50 text-rose-700') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
+      >{t('urgent')}</button>
+      <button
+        onClick={()=>setPrioFilter('low')}
+        className={`px-2 py-1 text-xs ${prioFilter==='low' ? (theme==='dark' ? 'bg-white/10 text-emerald-300' : 'bg-emerald-50 text-emerald-700') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
+      >{t('low')}</button>
+    </div>
+  </div>
+</div>
           </div>
         </div>
       </header>
