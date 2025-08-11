@@ -4,7 +4,6 @@ import {
   CalendarDays, Menu, Flag, Filter, Pin, StickyNote, Sun, Moon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { onThemeChanged } from './main.jsx';
 export default function TodoApp() {
   // ===== Storage Keys =====
   const CATS_KEY = "todo:categories";
@@ -352,7 +351,7 @@ export default function TodoApp() {
   const btnCorner   = isAR ? "rounded-l-xl" : "rounded-r-xl";
 
   return (
-    <div className={`min-h-screen ${T.root}`} dir={dir}>
+    <div className={`app min-h-screen ${T.root}`} dir={dir}>
       <style>{gradientCss}</style>
       <div className="fixed inset-0 -z-10 opacity-70" style={{
         backgroundImage: theme==='dark'
