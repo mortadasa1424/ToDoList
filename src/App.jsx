@@ -4,6 +4,7 @@ import {
   CalendarDays, Menu, Flag, Filter, Pin, StickyNote, Sun, Moon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { onThemeChanged } from './main.jsx';
 export default function TodoApp() {
   // ===== Storage Keys =====
   const CATS_KEY = "todo:categories";
