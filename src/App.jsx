@@ -425,7 +425,7 @@ export default function TodoApp() {
 
             <div className={`min-w-0 flex flex-1 items-center gap-2 rounded-xl border ${T.border} ${theme==='dark' ? 'bg-white/5' : 'bg-white'} px-3 py-1.5`}>
               <CalendarDays className="h-4 w-4" />
-              <span className="text-sm truncate">{today}</span>
+              <span className="text-xs truncate">{today}</span>
             </div>
 
             {/* Mobile: select */}
