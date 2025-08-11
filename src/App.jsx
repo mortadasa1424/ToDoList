@@ -461,8 +461,6 @@ export default function TodoApp() {
         className={`px-2 py-1 text-xs ${prioFilter==='low' ? (theme==='dark' ? 'bg-white/10 text-emerald-300' : 'bg-emerald-50 text-emerald-700') : (theme==='dark' ? 'hover:bg-white/5' : 'hover:bg-gray-50')}`}
       >{t('low')}</button>
     </div>
-  </div>
-</div>
           </div>
         </div>
       </header>
