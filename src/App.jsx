@@ -4,7 +4,7 @@ import {
   CalendarDays, Menu, Flag, Filter, Pin, StickyNote, Sun, Moon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { onThemeChanged } from './main.jsx';
 export default function TodoApp() {
   // ===== Storage Keys =====
   const CATS_KEY = "todo:categories";
@@ -18,6 +18,9 @@ export default function TodoApp() {
     try { return localStorage.getItem(THEME_KEY) || "dark"; } catch { return "dark"; }
   });
   useEffect(() => { try { localStorage.setItem(THEME_KEY, theme); } catch {} }, [theme]);
+  useEffect(() => {
+  onThemeChanged(theme === 'dark');
+}, [theme]);
 
   // ===== Language =====
   const [lang, setLang] = useState(() => {
